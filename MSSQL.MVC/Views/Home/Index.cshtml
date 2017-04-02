@@ -1,0 +1,119 @@
+﻿@model List<Blog>
+@{
+    // 转换后台数据
+    var categorys = ViewData["categorys"] as List<Category>;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>首页</title>
+</head>
+<body>
+    <h1>欢迎</h1>
+    <a asp-action="/category">分类</a>
+    <a asp-action="/vueform">VueForm</a>
+    <a asp-action="/vueform">VueForm</a>
+    @*form提交一个对象*@
+    <form asp-action="/index" method="post" enctype="multipart/form-data">
+        <div>
+            <span>Url:</span>
+            <input type="text" name="blog.url" />
+        </div>
+        <div id="app">
+            <div v-for="(item, index) in postcount">
+                <p>{{index}}</p>
+                <span>Title:</span>
+                @* 这样的 name 名称可以在后台使用实体类接受数据 *@
+                <input type="text" :name="'blog.posts['+ index + '].title'"  />
+                <span>content:</span>
+                <input type="text" :name="'blog.posts['+ index + '].content'"  />
+            </div>
+            <br />
+            <button type="button" @@click="postcount.push(1)">添加一个post</button>
+            <div v-for="(item, index) in imgcount">
+                <p>{{index}}</p>
+                <span>图片描述:</span>
+                @* 这样的 name 名称可以在后台使用实体类接受数据 *@
+                <input type="text" :name="'img['+ index + '].title'" />
+                <span>图片文件:</span>
+                <input type="file" :name="'img['+ index + '].File'" />
+            </div>
+            <br />
+            <button type="button" @@click="imgcount.push(1)">添加一个post</button>
+        </div>
+        @*<div>
+            <p>2</p>
+            <span>Title:</span>
+            <input type="text" name="blog.posts[1].title" />
+            <span>content:</span>
+            <input type="text" name="blog.posts[1].content" />
+        </div>*@
+        <div id="app">
+
+            <p>@categorys.Count</p>
+
+            @foreach (var c in categorys)
+            {
+                //多对多类选择 value='id' 然后再后台构造实体转
+                <label>
+                    <input type="checkbox" name="categorys" value="@c.CategoryId" />
+                    @c.Name
+                </label>
+            }
+        </div>
+        <button type="submit">提交保存</button>
+    </form>
+    <p>@Model.Count</p>
+    @foreach (var item in Model)
+    {
+        <h3>@item.Url</h3>
+        <ul>
+            @foreach (var c in item.BlogCategorys)
+            {
+                <li>@c.Category.Name</li>
+            }
+        </ul>
+        if (item.Posts.Count > 0)
+        {
+            <table>
+                <tr>
+                    <th>Title</th>
+                    <th>Content</th>
+                </tr>
+                @foreach (var post in item.Posts)
+                {
+                    <tr>
+                        <td>@post.Title</td>
+                        <td>@post.Content</td>
+                    </tr>
+                }
+            </table>
+        }
+        <p>@item.Imgs.Count</p>
+        if (item.Imgs.Count > 0)
+        {
+            <div>
+            @foreach (var img in item.Imgs)
+            {
+                <p>@img.Title</p>
+                <img src="@img.Url" style="width:80px;height:80px;" alt="Alternate Text" />
+            }
+            </div>
+        }
+    }
+
+</body>
+</html>
+<script src="https://unpkg.com/vue@2.2.6/dist/vue.min.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            postcount: [1],
+            imgcount:[1]
+        },
+        methods: {
+            
+        }
+    })
+</script>
